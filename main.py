@@ -8,7 +8,7 @@ app = FastAPI()
 def read_root():
     return {"message": "AgriNex IVR is live! 🚜🎉"}
 
-@app.post("/start-agent/")
+@app.api_route("/start-agent/", methods=["GET", "POST"])
 async def start_agent(background_tasks: BackgroundTasks):
     # 1. Trigger AI Agent logic in background
     background_tasks.add_task(voice.main)
