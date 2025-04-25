@@ -16,8 +16,8 @@ from googletrans import Translator
 import asyncio
 from gtts import gTTS
 import pygame
-import sys
-import io
+# import sys
+# import io
 import tempfile
 
 # GROQ_API_KEY = "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"
@@ -926,9 +926,9 @@ async def return_or_exit(language, phone_number):
         else:
             await speak_translated("Invalid input. Please say 9 to return or 0 to exit.", language)
 
-from playsound import playsound
-import uuid
-from fuzzywuzzy import fuzz
+# from playsound import playsound
+# import uuid
+# from fuzzywuzzy import fuzz
 
 async def bulletproof_voice_menu(language):
     if language == "kn":
