@@ -3,6 +3,7 @@ from models import voice # your 1100+ line AI agent
 from concurrent.futures import ThreadPoolExecutor
 from gtts import gTTS
 from fastapi.responses import Response
+import os
 app = FastAPI()
 
 @app.get("/")
@@ -25,25 +26,22 @@ async def start_agent(background_tasks: BackgroundTasks):
     </Response>
     """
     return Response(content=exoml.strip(), media_type="application/xml")
-
+# Endpoint to handle asking the agent
 @app.post("/ask-agent/")
 async def ask_agent(request: Request):
-    try:
-        data = await request.json()  # Try to parse the JSON body
-        if not data.get("message"):
-            return {"error": "Message is missing in the request"}
-        
-        user_message = data.get("message")
-        
-        # Call your AI agent chat function
-        ai_reply = voice.chat(user_message)  # 👈 your AI agent logic
-        
-        # Use gTTS to create speech from AI response
-        tts = gTTS(ai_reply, lang='en')
-        audio_filename = "output.mp3"
-        tts.save(audio_filename)
+    data = await request.json()
+    user_message = data.get("message")
+    
+    # Call the process_message_and_generate_audio function from voice.py
+    ai_response, audio_file_name = voice.process_message_and_generate_audio(user_message)
+    
+    # Construct the URL for the audio file
+    audio_url = f"https://your-backend-url/audio/{audio_file_name}"
+    
+    return {"reply": ai_response, "audio_url": audio_url}
 
-        # Return URL to play this audio in frontend
-        return {"reply": ai_reply, "audio_url": f"/static/{audio_filename}"}
-    except Exception as e:
-        return {"error": f"Error processing the request: {str(e)}"}
+# Endpoint to serve the generated audio files
+@app.get("/audio/{audio_file_name}")
+async def get_audio(audio_file_name: str):
+    audio_file_path = os.path.join("audio", audio_file_name)
+    return FileResponse(audio_file_path, media_type="audio/mp3")
