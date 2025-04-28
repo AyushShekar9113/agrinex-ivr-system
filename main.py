@@ -1,7 +1,8 @@
 from fastapi import FastAPI, BackgroundTasks,Request
 from models import voice # your 1100+ line AI agent
 from concurrent.futures import ThreadPoolExecutor
-
+from gtts import gTTS
+from fastapi.responses import Response
 app = FastAPI()
 
 @app.get("/")
@@ -30,6 +31,13 @@ async def ask_agent(request: Request):
     user_message = data.get("message")
 
     # Call your AI agent chat function
-    ai_reply = voice.chat(user_message)  # 👈 We'll define this in voice.py
+    ai_reply = voice.chat(user_message)  # 👈 your AI agent logic
 
-    return {"reply": ai_reply}
+    # Use gTTS to create speech from AI response
+    tts = gTTS(ai_reply, lang='en')
+    audio_filename = "output.mp3"
+    tts.save(audio_filename)
+
+    # Return URL to play this audio in frontend
+    return {"reply": ai_reply, "audio_url": f"/static/{audio_filename}"}
+
