@@ -61,6 +61,22 @@ OFFLINE_STORAGE = "offline_sales.json"
 #     except Exception as e:
 #         print(f"❌ TTS error: {e}")
 
+def process_message_and_generate_audio(message: str):
+    # Example of processing the message - you can integrate your AI model here
+    ai_response = f"AI response to: {message}"  # This is just an example, replace it with real logic
+
+    # Generate the speech from the AI response using gTTS
+    audio_file_name = f"response_{uuid.uuid4()}.mp3"
+    audio_file_path = os.path.join("audio", audio_file_name)  # Save in an 'audio' directory
+
+    # Create the audio file
+    tts = gTTS(ai_response, lang='en')
+    tts.save(audio_file_path)
+
+    # Return the response text and the path to the audio file
+    return ai_response, audio_file_name 
+
+
 async def speak(text, lang='kn'):
     if not text.strip():
         print("⚠️ Skipping empty text for TTS.")
