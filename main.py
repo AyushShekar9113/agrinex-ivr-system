@@ -24,3 +24,12 @@ async def start_agent(background_tasks: BackgroundTasks):
     </Response>
     """
     return Response(content=exoml.strip(), media_type="application/xml")
+@app.post("/ask-agent/")
+async def ask_agent(request: Request):
+    data = await request.json()
+    user_message = data.get("message")
+
+    # Call your AI agent chat function
+    ai_reply = voice.chat(user_message)  # 👈 We'll define this in voice.py
+
+    return {"reply": ai_reply}
