@@ -25,19 +25,25 @@ async def start_agent(background_tasks: BackgroundTasks):
     </Response>
     """
     return Response(content=exoml.strip(), media_type="application/xml")
+
 @app.post("/ask-agent/")
 async def ask_agent(request: Request):
-    data = await request.json()
-    user_message = data.get("message")
+    try:
+        data = await request.json()  # Try to parse the JSON body
+        if not data.get("message"):
+            return {"error": "Message is missing in the request"}
+        
+        user_message = data.get("message")
+        
+        # Call your AI agent chat function
+        ai_reply = voice.chat(user_message)  # 👈 your AI agent logic
+        
+        # Use gTTS to create speech from AI response
+        tts = gTTS(ai_reply, lang='en')
+        audio_filename = "output.mp3"
+        tts.save(audio_filename)
 
-    # Call your AI agent chat function
-    ai_reply = voice.chat(user_message)  # 👈 your AI agent logic
-
-    # Use gTTS to create speech from AI response
-    tts = gTTS(ai_reply, lang='en')
-    audio_filename = "output.mp3"
-    tts.save(audio_filename)
-
-    # Return URL to play this audio in frontend
-    return {"reply": ai_reply, "audio_url": f"/static/{audio_filename}"}
-
+        # Return URL to play this audio in frontend
+        return {"reply": ai_reply, "audio_url": f"/static/{audio_filename}"}
+    except Exception as e:
+        return {"error": f"Error processing the request: {str(e)}"}
